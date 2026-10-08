@@ -23,20 +23,28 @@ def realign_thetas(lift_theta_ds, tilt_theta_ds, time_step=0.001):
     output_ds["Tilt_theta"] = align_to_reference(output_ds, tilt_theta_ds)["Tilt_theta"]
     return output_ds
 
-def cylinders_pump_power(df: pd.DataFrame) -> tuple[float, float]:
+def realign_u(lift_u_ds, tilt_u_ds, time_step=0.001):
+    output_ds = pd.DataFrame()
+    output_ds["Time"] = np.arange(0, 30, time_step)
+    output_ds["Lift_U"] = align_to_reference(output_ds, lift_u_ds)["Lift_U"]*10
+    output_ds["Tilt_U"] = align_to_reference(output_ds, tilt_u_ds)["Tilt_U"]*10
+    return output_ds
+
+def cylinders_pump_power(df: pd.DataFrame) -> pd.DataFrame:
     power_lift_flowin_A = np.heaviside(df["Lift_U"],0)
     power_lift_flowin_B = np.heaviside(-df["Lift_U"], 0)
     power_tilt_flowin_A = np.heaviside(df["Tilt_U"],0)
     power_tilt_flowin_B = np.heaviside(-df["Tilt_U"], 0)
-    lift_p  = -(df["Lift_A_p"] * df["Lift_A_Q"]*power_lift_flowin_A + df["Lift_B_p"] * df["Lift_B_Q"]*power_lift_flowin_B)*1e5 /6e4
-    tilt_p = -(df["Tilt_A_p"] * df["Tilt_A_Q"]*power_tilt_flowin_A + df["Tilt_B_p"] * df["Tilt_B_Q"]*power_tilt_flowin_B)*1e5 /6e4
+    df["Lift_P"]  = -(df["Lift_A_p"] * df["Lift_A_Q"]*power_lift_flowin_A + df["Lift_B_p"] * df["Lift_B_Q"]*power_lift_flowin_B)*1e5 /6e4 /1e3
+    df["Tilt_P"] = -(df["Tilt_A_p"] * df["Tilt_A_Q"]*power_tilt_flowin_A + df["Tilt_B_p"] * df["Tilt_B_Q"]*power_tilt_flowin_B)*1e5 /6e4 /1e3
+    # df["Lift_P"]  = -(df["VolPump_p"] * df["Lift_DV_QP"])*1e5 /6e4 /1e3
+    # df["Tilt_P"] = -(df["VolPump_p"] * df["Tilt_DV_QP"])*1e5 /6e4 /1e3
     return df
 
-
 def cylinders_pump_work(df: pd.DataFrame) -> tuple[float, float]:
-    power_lift, power_tilt = cylinders_pump_power(df)
-    lift_w = np.trapezoid(power_lift, x=df["Time"])
-    tilt_w = np.trapezoid(power_tilt, x=df["Time"])
+    power_df = cylinders_pump_power(df)
+    lift_w = np.trapezoid(power_df["Lift_P"], x=df["Time"])
+    tilt_w = np.trapezoid(power_df["Tilt_P"], x=df["Time"])
     return lift_w, tilt_w
 
 def leak_loss(df: pd.DataFrame) -> float:

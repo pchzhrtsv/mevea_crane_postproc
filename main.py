@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 from data_import import import_results
-from result_parser import load_all_results, load_ref_thetas, load_some_results
+from result_parser import load_all_results, load_ref_thetas, load_masked_results
 from plotting import plot_variables, plot_series, plot_smthng
 from processing import *
 import matplotlib.pyplot as plt
@@ -43,7 +43,8 @@ def main():
     some_datasets = dict()
     global_case_masks = [(y, x, 35) for x in [400] for y in [0,30]]
     for x in global_case_masks:
-        some_datasets.update(load_some_results(RAWDATA_DIR, x))
+        some_datasets.update(load_masked_results(RAWDATA_DIR, x))
+
     cutted_datasets = start_from(some_datasets, 2.4)
     power_plots(cutted_datasets, cases=[(0,400,35),(30,400,35)])
     # consumption_on_lightweight(cutted_datasets, global_case_masks, relative=True)
@@ -59,7 +60,7 @@ def main():
 
     # pos_rms_on_ref_pressure(cutted_datasets, thetas_ds, [(0, 10, None), (30, 10, None), (0, 400, None), (30, 400, None)])
 
-    #consumption_on_lightweight(cutted_datasets, [(None, x, 35) for x in [380,390,400]], relative=True)
+    consumption_on_lightweight(cutted_datasets, [(None, x, 35) for x in [380,390,400]], relative=True)
 
 if __name__ == "__main__":
     main()

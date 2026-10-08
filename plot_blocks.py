@@ -167,7 +167,7 @@ def consumption_on_lightweight(dss, case_masks, relative=False):
         print(f"Processing: {i}/{len(case_masks)}.")
         i+=1
     total_ds.to_csv("consumption_on_lightweight_35bar.csv", index=False)
-    plt.show()
+    # plt.show()
 
 def consumption_on_lightweight_single(dss, case_mask, total_ds, relative=True):
 
