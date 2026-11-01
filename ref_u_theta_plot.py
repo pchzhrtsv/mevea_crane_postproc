@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     X_LABEL = "Time, s"
     Y_LABEL1 = r"$\Theta$, rad"
-    Y_LABEL2 = r"U, V"
+    Y_LABEL2 = r"$u_{ref}$, V"
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"
 
@@ -33,32 +33,35 @@ if __name__ == "__main__":
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     """|||||||||||||||||||||||||||||||||||||||||||||||||| PLOTTING ||||||||||||||||||||||||||||||||||||||||||||||||||"""
+    fs = 20
+    fig_size = (6.48, 5.40)
+    fig, ax1 = plt.subplots(figsize=fig_size)
+    plt.plot(thetas_ds["Time"], thetas_ds["Lift_theta"], label="Lift boom", linewidth=2, linestyle="--")
+    plt.plot(thetas_ds["Time"], thetas_ds["Tilt_theta"], label="Tilt boom", linewidth=2, linestyle="-.")
 
-    fig, ax1 = plt.subplots(figsize=(8, 6))
-    plt.plot(thetas_ds["Time"], thetas_ds["Lift_theta"], label="Lift boom", linewidth=2)
-    plt.plot(thetas_ds["Time"], thetas_ds["Tilt_theta"], label="Tilt boom", linewidth=2)
-
-    plt.xlabel(X_LABEL,  fontsize=18)
-    plt.ylabel(Y_LABEL1,  fontsize=18)
-    plt.xticks(fontsize=18)
-    plt.yticks(fontsize=18)
+    plt.xlabel(X_LABEL,  fontsize=fs)
+    plt.ylabel(Y_LABEL1,  fontsize=fs)
+    plt.xticks(fontsize=fs)
+    plt.yticks(fontsize=fs)
     plt.grid(True)
-    plt.legend(fontsize=16)
+    plt.legend(fontsize=fs,    loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3,frameon=False)
     plt.tight_layout()
+
     plt.savefig(f"figures/OUTPUT_reference_theta.pdf", format="pdf")
 
     plt.show()
 
-    fig, ax1 = plt.subplots(figsize=(8, 6))
-    plt.plot(u_ds["Time"], u_ds["Lift_U"], label="Lift valve", linewidth=2)
-    plt.plot(u_ds["Time"], u_ds["Tilt_U"], label="Tilt valve", linewidth=2)
-    plt.xlabel(X_LABEL,  fontsize=18)
-    plt.ylabel(Y_LABEL2,  fontsize=18)
-    plt.xticks(fontsize=18)
-    plt.yticks(fontsize=18)
+    fig, ax1 = plt.subplots(figsize=fig_size)
+    plt.plot(u_ds["Time"], u_ds["Lift_U"], label="Lift valve", linewidth=2, linestyle="--")
+    plt.plot(u_ds["Time"], u_ds["Tilt_U"], label="Tilt valve", linewidth=2, linestyle="-.")
+    plt.xlabel(X_LABEL,  fontsize=fs)
+    plt.ylabel(Y_LABEL2,  fontsize=fs)
+    plt.xticks(fontsize=fs)
+    plt.yticks(fontsize=fs)
     plt.grid(True)
-    plt.legend(fontsize=16)
+    plt.legend(fontsize=fs,loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3,frameon=False)
     plt.tight_layout()
+
     plt.savefig(f"figures/OUTPUT_reference_u.pdf", format="pdf")
 
     plt.show()

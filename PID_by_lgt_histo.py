@@ -91,7 +91,7 @@ if __name__ == "__main__":
     width = 0.095
 
     for valve in ["Lift", "Tilt"]:
-        fig = plt.figure(figsize=(8, 6))
+        fig = plt.figure(figsize=(6.48, 5))
         ax = fig.add_subplot(111)
 
         i = 0
@@ -105,22 +105,22 @@ if __name__ == "__main__":
                     vals = [row["Tilt max deviation"], row["Tilt mean deviation"], row["Tilt spread deviation"]]
 
                 offset = (i - 3.5) * width
-                plt.bar(x + offset, vals, width=width, color=color_map[(pld, lgt)], edgecolor="black", linewidth=0.8)
+                plt.bar(x + offset, vals, width=width, color=color_map[(pld, lgt)], edgecolor="black", linewidth=0.8,zorder=3)
                 i += 1
 
-        plt.ylabel(Y_LABEL, fontsize=18)
-        plt.xticks(x, metrics, fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.title(f"{valve} PID control correction", fontsize=18)
-        plt.grid(True, axis="y")
+        plt.ylabel(Y_LABEL, fontsize=20)
+        plt.xticks(x, metrics, fontsize=20)
+        plt.yticks(fontsize=20)
+        #plt.title(f"{valve} PID control correction", fontsize=20)
+        plt.grid(True, axis="y",zorder=0)
 
         plt.tight_layout()
         plt.subplots_adjust(bottom=0.23)
         plt.savefig(f"figures/OUTPUT_{FILENAME}_{valve.lower()}.pdf", format="pdf", bbox_inches="tight")
 
-        fig_legend = plt.figure(figsize=(10, 1))
+        fig_legend = plt.figure(figsize=(6.48*2, 1.5))
 
-        fig_legend.legend(handles=legend_handles, loc="center", ncol=4, fontsize=16, frameon=False, columnspacing=2.9, handletextpad=0.5, handlelength=2.2)
+        fig_legend.legend(handles=legend_handles, loc="center", ncol=4, fontsize=10, frameon=False, columnspacing=2.9, handletextpad=0.5, handlelength=2.2)
         #fig_legend.legend(handles=legend_handles, fontsize=16, loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=4, frameon=False)
         fig_legend.savefig(f"figures/LEGEND_{FILENAME}_{valve.lower()}.pdf", bbox_inches="tight", pad_inches=0.05)
 
