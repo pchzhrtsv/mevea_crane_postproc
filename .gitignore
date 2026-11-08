@@ -1,5 +1,7 @@
 rawdata/
 rawdata/**
+refpress_data/
+rawdata_powerbalance/
 
 __pycache__/
 *.py[cod]
