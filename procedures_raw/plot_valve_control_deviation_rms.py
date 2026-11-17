@@ -15,7 +15,7 @@ REF_U_DIR = PROJECT_ROOT / "exp_pressures/validatio.txt"
 if __name__ == "__main__":
 
     X_LABEL = "Deviation metric"
-    Y_LABEL = r"$\delta u_{\mathrm{PID}}$, V"
+    Y_LABEL = r"Value, V"
     FILENAME = "U_dev_by_lgt"
 
     plt.rcParams["font.family"] = "Times New Roman"
@@ -146,9 +146,9 @@ if __name__ == "__main__":
     ]
 
     metrics = [
-        r"$\max$",
-        r"$\mathrm{MAE}$",
-        r"$\mathrm{RMS}$"
+        r"$\delta U_{k}^{max}$",
+        r"$\delta U_{k}^{MAE}$",
+        r"$\delta U_{k}^{RMS}$"
     ]
 
     x = np.arange(len(metrics))

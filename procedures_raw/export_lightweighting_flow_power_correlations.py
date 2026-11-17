@@ -1,9 +1,8 @@
 """Correlate 30%-minus-0% flow and pump-power changes for matched scenarios.
 
 Match payload and R code, then analyze each of the four motions separately.
-Pump power follows plot_pump_power_change.py exactly: align the 30% case
-to the 0% grid, calculate hydraulic pump power, remove peaks (window 50),
-smooth (window 200), and subtract. Flow differences use the raw exported
+Align the 30% case to the 0% grid, calculate hydraulic pump power, remove
+peaks (window 20), and subtract. Flow differences use the raw exported
 Lift_DV_QP, Tilt_DV_QP, and Pump_Q signs, with no additional filtering.
 """
 from pathlib import Path
@@ -17,7 +16,7 @@ from procedures_raw.export_hydraulic_energy_balance_by_motion import (
     MOTIONS, select_power_interval,
 )
 from utils.paths import COMMITABLE_DATA_DIR, CSV_DIR
-from utils.processing import align_to_reference, clean_spikes, smooth_series
+from utils.processing import align_to_reference, clean_spikes
 from utils.result_parser import load_result
 
 
@@ -36,7 +35,7 @@ def prepare_pair_changes(
     """Return aligned flows and processed P_0/P_30/dP in kW.
 
     Validate source values and full time coverage before interpolation.
-    Reproduce plot_pump_power_change's operation order and conversion factors.
+    Use the pump-power conversion factors from plot_pump_power_change.
     Neither source DataFrame is modified; all filters act on a new frame.
     """
     for label, data in (("0%", baseline), ("30%", lightened)):
@@ -61,8 +60,7 @@ def prepare_pair_changes(
         (actual.VolPump_p - 1) * actual.Pump_Q / 60000 * 1e5 / 1e3
     )
     for column in ("P_0", "P_30"):
-        clean_spikes(result, column, key_clean=column, window=50)
-        smooth_series(result, column, key_smooth=column, window=200)
+        clean_spikes(result, column, key_clean=column, window=20)
     result["dP"] = result["P_30"] - result["P_0"]
     for name, signal in FLOW_SIGNALS.items():
         result[f"{name}_0"] = baseline[signal].to_numpy()

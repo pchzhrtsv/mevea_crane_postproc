@@ -55,7 +55,7 @@ if __name__ == "__main__":
             datasets.update(load_specific_results(RAWDATA_DIR, case_set))
             case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
             datasets.update(load_specific_results(RAWDATA_DIR, case_set))
-
+            datasets = start_from(datasets, 2.5)
             """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
             plot_df = pd.DataFrame()

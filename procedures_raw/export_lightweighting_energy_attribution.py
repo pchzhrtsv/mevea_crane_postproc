@@ -1,7 +1,7 @@
 """Attribute paired 0%/30% pump-energy changes to flow and pressure.
 
-Use the same pump-power calculation and 50/200 filtering as
-plot_pump_power_change.py, including two mixed pressure/flow combinations.
+Use pump power with 20-sample spike filtering, including two mixed
+pressure/flow combinations.
 The symmetric two-order allocation closes exactly even with nonlinear spike
 filtering. Also report direct paired angle differences and flow deviations.
 No trajectory-equivalence threshold or automatic confidence label is imposed.
@@ -20,7 +20,7 @@ from procedures_raw.export_lightweighting_flow_power_correlations import (
     time_mean,
 )
 from utils.paths import COMMITABLE_DATA_DIR, CSV_DIR
-from utils.processing import align_to_reference, clean_spikes, smooth_series
+from utils.processing import align_to_reference, clean_spikes
 from utils.result_parser import load_result
 
 
@@ -29,10 +29,9 @@ ANGLE_SIGNALS = {"lift": "Lift_theta", "tilt": "Tilt_theta"}
 
 
 def process_mixed_power(pressure: np.ndarray, flow: np.ndarray) -> np.ndarray:
-    """Return kW from gauge bar and L/min, with the reference 50/200 pipeline."""
+    """Return kW from gauge bar and L/min, with 20-sample spike filtering."""
     power = pd.DataFrame({"power": pressure * flow / 60000 * 1e5 / 1e3})
-    clean_spikes(power, "power", key_clean="power", window=50)
-    smooth_series(power, "power", key_smooth="power", window=200)
+    clean_spikes(power, "power", key_clean="power", window=20)
     return power["power"].to_numpy()
 
 

@@ -1,7 +1,7 @@
 """Export signed hydraulic energy balances for all commitable_data cases.
 
-Use the full recorded interval and the hydraulic powers, spike filtering
-(20 samples), and smoothing (100 samples) from plot_power_balance_hydraulic.
+Use the full recorded interval and hydraulic powers with spike filtering
+(20 samples).
 Pressures are in bar, flows in L/min, time in seconds, and energy in kJ.
 The filename's R value is exported unchanged as rfp.
 """
@@ -13,7 +13,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from utils.paths import COMMITABLE_DATA_DIR, CSV_DIR
-from utils.processing import clean_spikes, smooth_series
+from utils.processing import clean_spikes
 from utils.result_parser import load_result
 
 
@@ -103,7 +103,6 @@ def calculate_hydraulic_powers(dataset: pd.DataFrame) -> pd.DataFrame:
         if column == "Time":
             continue
         clean_spikes(powers, column, key_clean=column, window=20)
-        smooth_series(powers, column, key_smooth=column, window=100)
 
     # Sum storage after filtering each line, as in the reference procedure.
     powers["P_storage_sum"] = powers[storage_columns].sum(axis=1)
@@ -118,12 +117,14 @@ def calculate_hydraulic_powers(dataset: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_energy_balance(dataset: pd.DataFrame) -> dict[str, float]:
-    """Integrate signed powers over recorded time and return kJ and shares.
+    powers = calculate_hydraulic_powers(dataset)
 
-    Shares use the filtered pump energy as denominator. No absolute values,
-    clipping, or renormalization are applied, including to storage/residual.
-    """
-    return integrate_energy_balance(calculate_hydraulic_powers(dataset))
+    from procedures_raw.export_hydraulic_energy_balance_by_motion import (
+        select_power_interval,
+    )
+
+    interval = select_power_interval(powers, 2.5, float(powers["Time"].iloc[-1]))
+    return integrate_energy_balance(interval)
 
 
 def integrate_energy_balance(powers: pd.DataFrame) -> dict[str, float]:

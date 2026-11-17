@@ -19,7 +19,7 @@ REFTHETA_DIR = (PROJECT_ROOT / "target_thetas")
 if __name__ == "__main__":
 
     X_LABEL = "Time, s"
-    Y_LABEL_theta = r"$\Theta$, rad"
+    Y_LABEL_theta = r"$\theta$, rad"
     Y_LABEL_p = r"$p$, bar"
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"

@@ -12,12 +12,13 @@ import ast
 
 from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT
 RAWDATA_DIR = DATA_DIR
-REF_U_DIR = (PROJECT_ROOT / "target_u")
+#REF_U_DIR = PROJECT_ROOT / "target_u"
+REF_U_DIR = PROJECT_ROOT / "exp_pressures/validatio.txt"
 
 if __name__ == "__main__":
 
     X_LABEL = "Time, s"
-    Y_LABEL = r"$u$, V"
+    Y_LABEL = r"$U_k$, V"
     TITLE = "Valve control signals"
     FILENAME = "U_by_lgt"
     plt.rcParams["font.family"] = "Times New Roman"
@@ -29,20 +30,21 @@ if __name__ == "__main__":
     datasets = dict()
     l_set = [0,30]
     p_set = [10, 400]
-    r_set = [300]
+    r_set = [30]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
     datasets.update(load_specific_results(RAWDATA_DIR, case_set))
 
-    lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
-    u_ds = realign_u(lift_u_ds, tilt_u_ds)
-
+    # lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
+    # u_ds = realign_u(lift_u_ds, tilt_u_ds)
+    valid_df = pd.read_csv(REF_U_DIR,sep="\t")
+    u_ds = valid_df[["Time", "Lift_U", "Tilt_U"]].copy()
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     for case_id in case_set:
         datasets[case_id] = align_to_reference(u_ds, datasets[case_id])
 
-        datasets[case_id] = smooth_series(datasets[case_id], "Lift_U", key_smooth="Lift_U_smooth", window=200)
-        datasets[case_id] = smooth_series(datasets[case_id], "Tilt_U", key_smooth="Tilt_U_smooth", window=200)
+        datasets[case_id] = smooth_series(datasets[case_id], "Lift_U", key_smooth="Lift_U_smooth", window=50)
+        datasets[case_id] = smooth_series(datasets[case_id], "Tilt_U", key_smooth="Tilt_U_smooth", window=50)
         u_ds[f"Lift_U {case_id}"] = datasets[case_id].Lift_U_smooth
         u_ds[f"Tilt_U {case_id}"] = datasets[case_id].Tilt_U_smooth
 
