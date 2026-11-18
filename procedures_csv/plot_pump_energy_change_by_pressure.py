@@ -7,7 +7,7 @@ from utils.paths import CSV_DIR, FIGURES_DIR
 if __name__ == "__main__":
 
     X_LABEL = r"$\Delta p_{\mathrm{LS}}$, bar"
-    Y_LABEL = r"$\delta_{W,pump}$, %"
+    Y_LABEL = r"$\delta W_{pump}$, %"
 
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"
@@ -20,12 +20,15 @@ if __name__ == "__main__":
     """|||||||||||||||||||||||||||||||||||||||||||||||||| PLOTTING ||||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     fig, ax = plt.subplots(figsize=(12.96, 8))
-
+    curve_map = {
+        "10": ("--", "tab:blue", 'o', "full"),
+        "400": ("--", "tab:orange", 'D', "full"),
+    }
     for column in plot_df.columns:
         if column != "p_ref":
             curve_label = r"$m_{pld}$"f" = {column} kg"
             ax.plot(plot_df["p_ref"], plot_df[column],
-                    label=curve_label, linewidth=2, marker="o", markersize=6)
+                    label=curve_label, linewidth=1,color=curve_map[column][1], linestyle=curve_map[column][0], marker=curve_map[column][2],fillstyle=curve_map[column][3], markersize=6)
 
     ax.set_xlabel(X_LABEL, fontsize=20)
     ax.set_ylabel(Y_LABEL, fontsize=20)

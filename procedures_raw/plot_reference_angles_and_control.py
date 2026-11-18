@@ -16,8 +16,8 @@ REF_U_DIR = (PROJECT_ROOT / "target_u")
 if __name__ == "__main__":
 
     X_LABEL = "Time, s"
-    Y_LABEL1 = r"$\Theta$, rad"
-    Y_LABEL2 = r"$u_{ref}$, V"
+    Y_LABEL1 = r"$\theta_k$, rad"
+    Y_LABEL2 = r"$U^{ref}_k$, V"
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"
 

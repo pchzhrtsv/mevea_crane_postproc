@@ -1,7 +1,7 @@
-rawdata/
-rawdata/**
+rawdata*/
+rawdata*/**
 refpress_data/
-rawdata_powerbalance/
+refpress_data/**
 
 __pycache__/
 *.py[cod]

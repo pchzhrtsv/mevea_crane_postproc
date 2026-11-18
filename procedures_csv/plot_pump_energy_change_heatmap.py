@@ -150,13 +150,13 @@ if __name__ == "__main__":
     )
 
     cbar.set_label(
-        "Consumption change, %",
-        fontsize=fs,
+        r"$\delta W_{\mathrm{pump},s}$, %",
+        fontsize=fs+2,
         labelpad=10
     )
 
     cbar.set_ticks(np.arange(Z_MIN, Z_MAX+1, 5))
-    cbar.ax.tick_params(labelsize=fs)
+    cbar.ax.tick_params(labelsize=fs+2)
 
     plt.savefig(
         FIGURES_DIR / f"OUTPUT_{FILENAME}_colorbar.pdf",

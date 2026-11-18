@@ -14,8 +14,7 @@ from matplotlib.cm import ScalarMappable
 from tqdm import tqdm
 import time
 
-from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
+from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, RAWDATA_DIR
 
 if __name__ == "__main__":
 
@@ -50,7 +49,7 @@ if __name__ == "__main__":
         datasets.update(load_specific_results(RAWDATA_DIR, case_set))
 
         """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
-        cutted_datasets = start_from(datasets, 2.4)
+        cutted_datasets = start_from(datasets, 2.5)
 
         plot_df = pd.DataFrame()
         res_tup_list = list()

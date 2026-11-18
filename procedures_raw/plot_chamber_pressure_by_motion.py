@@ -28,10 +28,10 @@ if __name__ == "__main__":
     datasets = dict()
     l_set = [0, 10, 20, 30]
     p_set = [10, 400]
-    r_set = [30]
+    r_set = [10]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
     datasets.update(load_specific_results(RAWDATA_DIR, case_set))
-
+    datasets = start_from(datasets, 2.5)
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     chamber_set = ["Lift_A_p", "Lift_B_p", "Tilt_A_p", "Tilt_B_p"]
@@ -178,10 +178,9 @@ if __name__ == "__main__":
 
     """|||||||||||||||||||||||||||||||||||||||||||||||||| PLOTTING PILOT SHARE ||||||||||||||||||||||||||||||||||||||||||||||||||"""
 
-    plot_share_df = pilot_share_df[["case", "pld", "Lift vol.A", "Lift vol.B", "Tilt vol.A", "Tilt vol.B"]].copy()
+    plot_share_df = pilot_share_df[["case", "pld", "lgt", "Lift vol.A", "Lift vol.B", "Tilt vol.A", "Tilt vol.B"]].copy()
     plot_share_df["Valves closed"] = 100.0 - plot_share_df[["Lift vol.A", "Lift vol.B", "Tilt vol.A", "Tilt vol.B"]].sum(axis=1)
     plot_share_df["Valves closed"] = plot_share_df["Valves closed"].clip(lower=0)
-
     base_colors = {"Lift vol.A": "#005a32", "Lift vol.B": "#a1d99b", "Tilt vol.A": "#084594", "Tilt vol.B": "#6baed6", "Valves closed": "#bdbdbd"}
     legend_handles = [Patch(facecolor=base_colors[column], edgecolor="black", label=column) for column in ["Lift vol.A", "Lift vol.B", "Tilt vol.A", "Tilt vol.B", "Valves closed"]]
 
@@ -204,24 +203,61 @@ if __name__ == "__main__":
             x_right = left[i] + val
             x_center = left[i] + val / 2
             pld = plot_share_df.iloc[i]["pld"]
+            lgt = plot_share_df.iloc[i]["lgt"]
             txt = f"{val:.1f}%"
+            if r_set[0] == 10:
+                if column in ["Lift vol.B"] and (pld == 10 and lgt == 30):
+                    ax.text(x_center + 5, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column in ["Lift vol.B"] and (pld == 10 and lgt != 30):
+                    ax.text(x_center, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column in ["Lift vol.B"] and (pld == 400 and lgt in [20, 30]):
+                    ax.text(x_center - 5, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column in ["Lift vol.B"] and (pld == 400 and lgt in [0, 10]):
+                    ax.annotate(txt, xy=(x_left, y_i), xytext=(x_left - 3.0, y_i), ha="right", va="center", fontsize=fs,
+                                color="white",
+                                arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+                elif column in ["Tilt vol.B"] and pld == 10:
+                    ax.text(x_center - 2, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column in ["Tilt vol.B"] and pld == 400:
+                    ax.text(x_center - 4, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
 
-            if column in ["Lift vol.B"] and pld ==10:
-                ax.text(x_center+4, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
-            elif column in ["Lift vol.B", "Tilt vol.B"]:
-                ax.text(x_center, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column == "Lift vol.A":
+                    if pld == 400 or (pld == 10 and lgt != 30):
+                        ax.text(x_center + 0.5, y_i, txt, ha="center", va="center", fontsize=fs, color="white", zorder=4)
+                    else:
+                        ax.annotate(txt, xy=(x_right, y_i), xytext=(x_right + 3.0, y_i), ha="left", va="center",
+                                    fontsize=fs, color="black",
+                                    arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
 
-            elif column == "Lift vol.A":
-                if pld == 400:
-                    ax.text(x_center+1, y_i, txt, ha="center", va="center", fontsize=fs, color="white", zorder=4)
-                else:
+                elif column == "Tilt vol.A" and pld == 400:
+                    ax.annotate(txt, xy=(x_left, y_i), xytext=(x_left - 3.0, y_i), ha="right", va="center", fontsize=fs,
+                                color="black",
+                                arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+                elif column == "Tilt vol.A" and pld == 10:
+                    ax.annotate(txt, xy=(x_right, y_i), xytext=(x_right + 3.0, y_i), ha="left", va="center", fontsize=fs,
+                                color="black",
+                                arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+                elif column == "Valves closed":
+                    ax.annotate(txt, xy=(x_left, y_i), xytext=(x_left - 3.0, y_i), ha="right", va="center", fontsize=fs,
+                                color="black",
+                                arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+            elif r_set[0] == 40:
+                if column in ["Lift vol.B"] and pld ==10:
+                    ax.text(x_center+4, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+                elif column in ["Lift vol.B", "Tilt vol.B"]:
+                    ax.text(x_center, y_i, txt, ha="center", va="center", fontsize=fs, color="black", zorder=4)
+
+                elif column == "Lift vol.A":
+                    if pld == 400:
+                        ax.text(x_center+0.5, y_i, txt, ha="center", va="center", fontsize=fs, color="white", zorder=4)
+                    else:
+                        ax.annotate(txt, xy=(x_right, y_i), xytext=(x_right + 3.0, y_i), ha="left", va="center", fontsize=fs, color="black", arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+
+                elif column == "Tilt vol.A":
                     ax.annotate(txt, xy=(x_right, y_i), xytext=(x_right + 3.0, y_i), ha="left", va="center", fontsize=fs, color="black", arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
 
-            elif column == "Tilt vol.A":
-                ax.annotate(txt, xy=(x_right, y_i), xytext=(x_right + 3.0, y_i), ha="left", va="center", fontsize=fs, color="black", arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
-
-            elif column == "Valves closed":
-                ax.annotate(txt, xy=(x_left, y_i), xytext=(x_left - 3.0, y_i), ha="right", va="center", fontsize=fs, color="black", arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
+                elif column == "Valves closed":
+                    ax.annotate(txt, xy=(x_left, y_i), xytext=(x_left - 3.0, y_i), ha="right", va="center", fontsize=fs, color="black", arrowprops=dict(arrowstyle="->", lw=1.1, color="black", shrinkA=0, shrinkB=0), zorder=4)
 
         left += vals
 
@@ -237,7 +273,7 @@ if __name__ == "__main__":
     ax.invert_yaxis()
 
     plt.tight_layout()
-    plt.savefig(FIGURES_DIR / f"OUTPUT_{FILENAME}_pilot_share.pdf", format="pdf", bbox_inches="tight")
+    plt.savefig(FIGURES_DIR / f"OUTPUT_{FILENAME}_pilot_share_{r_set[0]}bar.pdf", format="pdf", bbox_inches="tight")
     plt.show()
 
     fig_legend = plt.figure(figsize=(12, 1.2))

@@ -9,7 +9,45 @@
 Таблицы результатов сохраняются в `csv_files/`, рисунки — в `figures/`.
 Исходные данные при обработке не перезаписываются.
 
-Запускать из корня проекта с установленными NumPy, pandas, Matplotlib и tqdm:
+## Установка зависимостей
+
+Команды выполняются из корня проекта. Создайте виртуальное окружение:
+
+```shell
+python -m venv .venv
+```
+
+Установите зависимости в это окружение (Windows PowerShell):
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Для Linux/macOS:
+
+```shell
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+В `requirements.txt` перечислены NumPy, pandas, Matplotlib, tqdm и fontTools.
+Версии пакетов не закреплены; файл не фиксирует точное окружение расчётов.
+В PyCharm выберите интерпретатор созданного окружения `.venv`.
+
+## Запуск процедур
+
+Активируйте окружение перед запуском процедур:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+```shell
+# Linux/macOS
+source .venv/bin/activate
+```
+
+Запускать из корня проекта:
 
 ```shell
 python main.py

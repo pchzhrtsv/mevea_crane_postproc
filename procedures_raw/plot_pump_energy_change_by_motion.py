@@ -18,7 +18,7 @@ FILENAME = "Energy_change_by_motion"
 if __name__ == "__main__":
 
     X_LABEL = "Motion"
-    Y_LABEL = r"$\delta_{W,s}$, %"
+    Y_LABEL = r"$\delta W_{s}$, %"
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"
 

@@ -27,8 +27,8 @@ if __name__ == "__main__":
     curve_map = {
         (0, 10): ("--", "tab:blue", "o", "none"),
         (30, 10): ("-", "tab:blue", "o", "full"),
-        (0, 400): ("--", "tab:orange", "o", "none"),
-        (30, 400): ("-", "tab:orange", "o", "full"),
+        (0, 400): ("--", "tab:orange", "D", "none"),
+        (30, 400): ("-", "tab:orange", "D", "full"),
     }
 
     for column in plot_df.columns:
@@ -44,7 +44,7 @@ if __name__ == "__main__":
                 color=curve_map[case][1],
                 linestyle=curve_map[case][0],
                 marker=curve_map[case][2],
-                linewidth=2,
+                linewidth=1,
                 markersize=6,
                 fillstyle=curve_map[case][3]
             )

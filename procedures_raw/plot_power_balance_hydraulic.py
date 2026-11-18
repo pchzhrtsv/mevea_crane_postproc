@@ -9,9 +9,7 @@ import pandas as pd
 from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumption_on_ref_pressure, pos_rms_on_ref_pressure, \
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
-from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
-
+from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, POWERBALANCE_DIR
 
 if __name__ == "__main__":
 
@@ -24,7 +22,7 @@ if __name__ == "__main__":
 
     datasets = dict()
     case_set = [(0, 400, 300),(0,10,300), (30,400,300), (30,10,300)]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(POWERBALANCE_DIR, case_set))
     for case_id in case_set:
         ds = datasets[case_id]
         FILENAME = f"Power_balance"
@@ -123,7 +121,7 @@ if __name__ == "__main__":
         #ax.plot(plot_df["Time"], plot_df["P_leak_sum"], label="External leakage power estimate", linewidth=1.5, color="purple")
         #ax.plot(plot_df["Time"], plot_df["P_fric_sum"], label="Cylinder friction losses", linewidth=1.5)
         #ax.plot(plot_df["Time"], plot_df["P_damp_sum"], label="Joint damping losses", linewidth=1.5)
-        ax.plot(plot_df["Time"], plot_df["P_pump"], label="Pump input power", linewidth=3, color="black")
+        ax.plot(plot_df["Time"], plot_df["P_pump"], label="Pump hydraulic power", linewidth=3, color="black")
         ax.plot(plot_df["Time"], plot_df["P_sum_total"], label="Total hydraulic power", linewidth=2, color="red", linestyle="--")
 
         #ax.plot(plot_df["Time"], plot_df["P_gap"], label="Unaccounted power", linewidth=3.0, color="gray", linestyle=":")
