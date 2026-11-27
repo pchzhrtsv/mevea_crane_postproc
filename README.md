@@ -22,7 +22,7 @@ Independent Python scripts for analyzing Lift and Tilt hydraulic simulations, co
 
 ## Run a procedure
 
-From the project root, use a Python environment with the dependencies in `requirements.txt` installed.
+Use Python **3.13.5**, the version configured for this project in PyCharm. From the project root, run the following in that environment. `requirements.txt` pins the direct dependencies to the versions installed in the project environment.
 
 ```shell
 python -m pip install -r requirements.txt
@@ -43,8 +43,6 @@ python -m procedures_raw.plot_model_vs_experiment
 | `plot_boom_angle_rmse_by_pressure.py` | Computes and plots boom angle RMSE across reference pressures using `refpress_data/`. |
 | `plot_boom_angle_scenarios.py` | Compares Lift and Tilt angle trajectories against the reference for selected scenarios. |
 | `plot_chamber_pressure_by_motion.py` | Summarizes chamber pressures and identifies the leading load-sensing chamber by motion. |
-| `plot_chamber_pressure_vs_load_sensing.py` | Compares chamber pressures with the load-sensing signal. |
-| `plot_hydraulic_energy_shares.py` | Plots cylinder energy shares and residual losses. |
 | `plot_model_experiment_angle_difference.py` | Plots differences between simulated and experimental boom angles. |
 | `plot_model_vs_experiment.py` | Compares simulated and experimental boom angles and chamber pressures. |
 | `plot_power_balance_hydraulic.py` | Computes and plots the hydraulic power balance using `powerbalance_data/`. |

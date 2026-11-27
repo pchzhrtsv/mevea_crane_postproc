@@ -1,5 +1,5 @@
-numpy
-pandas
-matplotlib
-tqdm
-fonttools
+numpy==2.5.5
+pandas==3.1.1
+matplotlib==3.11.2
+tqdm==4.70.1
+fonttools==4.68.0
