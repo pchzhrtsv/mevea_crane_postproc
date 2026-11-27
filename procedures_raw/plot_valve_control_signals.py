@@ -10,10 +10,8 @@ from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumpti
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 import ast
 
-from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT
-RAWDATA_DIR = DATA_DIR
-#REF_U_DIR = PROJECT_ROOT / "target_u"
-REF_U_DIR = PROJECT_ROOT / "exp_pressures/validatio.txt"
+from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REF_U_DIR
+
 
 if __name__ == "__main__":
 
@@ -32,12 +30,11 @@ if __name__ == "__main__":
     p_set = [10, 400]
     r_set = [30]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
 
-    # lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
-    # u_ds = realign_u(lift_u_ds, tilt_u_ds)
-    valid_df = pd.read_csv(REF_U_DIR,sep="\t")
-    u_ds = valid_df[["Time", "Lift_U", "Tilt_U"]].copy()
+    lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
+    u_ds = realign_u(lift_u_ds, tilt_u_ds)
+
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     for case_id in case_set:

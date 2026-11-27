@@ -20,7 +20,7 @@ if __name__ == "__main__":
         ("#7944A0", (0, (5, 1, 1, 1, 1, 1))),
     ]
     fs = 20
-    fig_size = (6.48, 5.40)
+    fig_size = (6.48, 4.40)
     start_time = 0.0
     motion_start_time = 2.5
     plt.rcParams.update({
@@ -105,10 +105,12 @@ if __name__ == "__main__":
             case_handles.append(line)
 
         # The vertical line marks the start of motion I at 2.5 s.
-        ax.axvline(
-            motion_start_time, color="black", linestyle="--", linewidth=1.2,
-            zorder=0.5, label="_motion_boundary",
-        )
+        motion_boundaries = (2.5, 8.5, 15.0, 21.0)
+        for mb in motion_boundaries:
+            ax.axvline(
+                mb, color="black", linestyle="--", linewidth=1.2,
+                zorder=0.5, label="_motion_boundary",
+            )
         ax.set_xlabel("Time, s")
         ax.set_ylabel(rf"$\theta_{{\mathrm{{{boom.lower()}}}}}$, rad")
         ax.set_xlim(start_time, end_time)

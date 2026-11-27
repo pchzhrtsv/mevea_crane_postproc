@@ -10,11 +10,10 @@ from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumpti
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
 from utils.paths import DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
-FILENAME = "Power_difference"
+
 
 if __name__ == "__main__":
-
+    FILENAME = "Power_difference"
     X_LABEL = "Time, s"
     Y_LABEL = r"$\Delta P_{\mathrm{pump}}$, kW"
     plt.rcParams["font.family"] = "Times New Roman"
@@ -26,9 +25,9 @@ if __name__ == "__main__":
     datasets = dict()
     l_set = [0, 30]
     p_set = [10, 400]
-    r_set = [350]
+    r_set = [30]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
 
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
@@ -36,8 +35,8 @@ if __name__ == "__main__":
     fs = 20
     fig_size = (6.48, 4.40)
     for pld in p_set:
-        ref_case_id = (0, pld, 350)
-        light_case_id = (30, pld, 350)
+        ref_case_id = (0, pld, 30)
+        light_case_id = (30, pld, 30)
 
         ref_ds = datasets[ref_case_id]
         datasets[light_case_id] = align_to_reference(ref_ds, datasets[light_case_id])

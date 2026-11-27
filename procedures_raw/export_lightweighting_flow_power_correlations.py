@@ -173,11 +173,13 @@ def find_scenario_pairs(
     return pairs
 
 
-def build_correlation_summary(
-    source_dir: Path = COMMITABLE_DATA_DIR,
-) -> pd.DataFrame:
+def main():
     """Match 0%/30% at each payload/R; 10%/20% do not enter these pairs."""
-    pairs = find_scenario_pairs(source_dir)
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
+    pairs = find_scenario_pairs(COMMITABLE_DATA_DIR)
+
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
+    # Read and process one 0%/30% pair at a time.
     rows = []
     for (rfp, payload), pair in tqdm(
         sorted(pairs.items()), desc="Paired flow/power correlations", unit="pair"
@@ -185,7 +187,10 @@ def build_correlation_summary(
         if set(pair) != {0, 30}:
             raise ValueError(f"Incomplete 0%/30% pair: R{rfp}, P{payload}")
         try:
-            changes = prepare_pair_changes(load_result(pair[0]), load_result(pair[30]))
+            baseline = load_result(pair[0])
+            lightweighted = load_result(pair[30])
+            changes = prepare_pair_changes(baseline, lightweighted)
+            del baseline, lightweighted
             summary = summarize_pair_changes(changes)
         except (ValueError, KeyError) as error:
             raise ValueError(f"R{rfp}, P{payload}: {error}") from error
@@ -193,13 +198,12 @@ def build_correlation_summary(
             {"rfp": rfp, "payload_kg": payload, **row}
             for row in summary.to_dict(orient="records")
         )
-    return pd.DataFrame(rows).sort_values(
+
+    summary = pd.DataFrame(rows).sort_values(
         ["rfp", "payload_kg", "motion"], ignore_index=True
     )
 
-
-def main():
-    summary = build_correlation_summary()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(f"Saved {len(summary)} paired motion correlations to {OUTPUT_FILE}")

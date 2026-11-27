@@ -150,7 +150,7 @@ if __name__ == "__main__":
     )
 
     cbar.set_label(
-        r"$\delta W_{\mathrm{pump},s}$, %",
+        r"$\delta W_{\mathrm{pump}}$, %",
         fontsize=fs+2,
         labelpad=10
     )

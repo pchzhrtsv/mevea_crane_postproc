@@ -9,10 +9,13 @@ import matplotlib.pyplot as plt
 from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumption_on_ref_pressure, pos_rms_on_ref_pressure, \
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
-from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REFPRESS_DIR
-RAWDATA_DIR = DATA_DIR
-REFTHETA_DIR = (PROJECT_ROOT / "target_thetas")
+from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REFPRESS_DIR, REFTHETA_DIR
+
 if __name__ == "__main__":
+    folder = Path(REFPRESS_DIR)
+    if not (folder.is_dir() and any(f.is_file() for f in folder.iterdir())):
+        raise FileNotFoundError(
+            "This procedure requires specific dataset with reference pressure analysis. Please, contact the developer.")
 
     X_LABEL = r"$\Delta p_{\mathrm{LS}}$, bar"
     Y_LABEL = r"$e_{\mathrm{RMS,2D}}$, rad"
@@ -30,10 +33,11 @@ if __name__ == "__main__":
     r_set = [int(i/2*10) for i in range(10,81)]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
     datasets.update(load_specific_results(REFPRESS_DIR, case_set))
-    datasets = start_from(datasets, 2.5)
+    #datasets = start_from(datasets, 2.5)
     lift_theta_ds, tilt_theta_ds = load_ref_thetas(REFTHETA_DIR)
     thetas_ds = realign_thetas(lift_theta_ds, tilt_theta_ds)
-
+    datasets = start_from(datasets, 2.5)
+    thetas_ds = thetas_ds[thetas_ds["Time"] >= 2.5].reset_index(drop=True)
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     plot_df = pd.DataFrame()
@@ -44,7 +48,6 @@ if __name__ == "__main__":
             for r in r_set:
                 c = (l,p,r)
                 datasets[c] = align_to_reference(thetas_ds, datasets[c])
-
                 lift_rmse = np.sqrt(np.mean(abs(datasets[c]["Lift_theta"] - thetas_ds["Lift_theta"]) ** 2))
 
                 tilt_rmse = np.sqrt(np.mean(abs(datasets[c]["Tilt_theta"] - thetas_ds["Tilt_theta"]) ** 2))

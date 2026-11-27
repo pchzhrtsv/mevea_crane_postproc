@@ -12,11 +12,9 @@ from matplotlib.patches import Patch
 from matplotlib.colors import to_rgb
 
 from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
-FILENAME = "Energy_change_by_motion"
 
 if __name__ == "__main__":
-
+    FILENAME = "Energy_change_by_motion"
     X_LABEL = "Motion"
     Y_LABEL = r"$\delta W_{s}$, %"
     plt.rcParams["font.family"] = "Times New Roman"
@@ -30,7 +28,7 @@ if __name__ == "__main__":
     p_set = [10, 400]
     r_set = [30]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
 
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 

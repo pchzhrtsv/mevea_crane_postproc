@@ -8,7 +8,6 @@ integrate each motion with exact, linearly interpolated boundary values.
 Energy and percentages keep their signs. Percentages use each motion's
 own pump energy; the filename's R code is exported unchanged.
 """
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -36,12 +35,7 @@ MOTIONS = (
 def select_power_interval(
     powers: pd.DataFrame, start_time: float, end_time: float
 ) -> pd.DataFrame:
-    """Select a recorded interval, adding interpolated boundary powers.
 
-    Require finite boundaries, positive duration, and full coverage by powers.
-    Keep original interior samples without re-filtering or extrapolation.
-    Shared boundaries preserve additivity of trapezoidal energy integrals.
-    """
     time = powers["Time"].to_numpy(dtype=float)
     if not np.isfinite([start_time, end_time]).all() or end_time <= start_time:
         raise ValueError("Motion boundaries must be finite and increasing")
@@ -57,11 +51,7 @@ def select_power_interval(
 
 
 def calculate_motion_energy_balances(dataset: pd.DataFrame) -> pd.DataFrame:
-    """Return four motion balances for a source dataset without modifying it.
 
-    Use the existing full-record filtering and signed-energy formulas.
-    Include exact interval bounds in seconds and shares of each motion's pump.
-    """
     powers = calculate_hydraulic_powers(dataset)
     last_time = float(powers["Time"].iloc[-1])
     rows = []
@@ -81,14 +71,15 @@ def calculate_motion_energy_balances(dataset: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def build_motion_energy_summary(
-    source_dir: Path = COMMITABLE_DATA_DIR,
-) -> pd.DataFrame:
-    """Read each L<percent>_P<kg>_R<code>.txt and return four rows per case."""
-    files = sorted(Path(source_dir).glob("*.txt"))
-    if not files:
-        raise FileNotFoundError(f"No simulation TXT files found in {source_dir}")
+def main():
 
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
+    files = sorted(COMMITABLE_DATA_DIR.glob("*.txt"))
+    if not files:
+        raise FileNotFoundError(f"No simulation TXT files found in {COMMITABLE_DATA_DIR}")
+
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
+    # Read and process one scenario at a time.
     rows = []
     for file_path in tqdm(files, desc="Hydraulic energy by motion", unit="case"):
         match = CASE_PATTERN.fullmatch(file_path.stem)
@@ -100,7 +91,9 @@ def build_motion_energy_summary(
             "payload_kg": int(match["payload"]),
         }
         try:
-            balances = calculate_motion_energy_balances(load_result(file_path))
+            dataset = load_result(file_path)
+            balances = calculate_motion_energy_balances(dataset)
+            del dataset
         except (ValueError, KeyError) as error:
             raise ValueError(f"{file_path.name}: {error}") from error
         rows.extend(
@@ -108,14 +101,12 @@ def build_motion_energy_summary(
             for balance in balances.to_dict(orient="records")
         )
 
-    return pd.DataFrame(rows).sort_values(
+    summary = pd.DataFrame(rows).sort_values(
         ["lightweighting_percent", "rfp", "payload_kg", "motion"],
         ignore_index=True,
     )
 
-
-def main():
-    summary = build_motion_energy_summary()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(f"Saved {len(summary)} motion balances to {OUTPUT_FILE}")

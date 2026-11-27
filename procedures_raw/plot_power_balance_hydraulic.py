@@ -21,7 +21,7 @@ if __name__ == "__main__":
     """|||||||||||||||||||||||||||||||||||||||||||||||||| READING ||||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     datasets = dict()
-    case_set = [(0, 400, 300),(0,10,300), (30,400,300), (30,10,300)]
+    case_set = [(0, 400, 30),(0,10,30), (30,400,30), (30,10,30)]
     datasets.update(load_specific_results(POWERBALANCE_DIR, case_set))
     for case_id in case_set:
         ds = datasets[case_id]

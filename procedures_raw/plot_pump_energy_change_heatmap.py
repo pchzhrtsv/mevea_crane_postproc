@@ -14,9 +14,12 @@ from matplotlib.cm import ScalarMappable
 from tqdm import tqdm
 import time
 
-from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, RAWDATA_DIR
+from utils.paths import CSV_DIR, FIGURES_DIR, RAWDATA_DIR
 
 if __name__ == "__main__":
+    folder = Path(RAWDATA_DIR)
+    if not (folder.is_dir() and any(f.is_file() for f in folder.iterdir())):
+        raise FileNotFoundError("This procedure requires specific rawdata dataset. Please, contact the developer.")
 
     X_LABEL = "Reference pressure, bar"
     Y_LABEL = r"$\frac{W_{30\%}-W_{0\%}}{W_{0\%}}$,  %"

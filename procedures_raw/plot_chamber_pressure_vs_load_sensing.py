@@ -10,10 +10,9 @@ from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumpti
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
 from utils.paths import DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
-FILENAME = "Power_plot"
-if __name__ == "__main__":
 
+if __name__ == "__main__":
+    FILENAME = "Power_plot"
     X_LABEL = "Time, s"
     Y_LABEL = "Pump Power, W"
     TITLE = r"$P = Q_{\mathrm{pump}}(t)\cdot(p_{\mathrm{pump}}(t)-p_{\mathrm{tank}})$"
@@ -28,7 +27,7 @@ if __name__ == "__main__":
     p_set = [10]
     r_set = [30]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
 
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 

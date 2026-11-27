@@ -6,7 +6,6 @@ reference Pump_Q is unavailable, so this is not total pump output energy.
 Use raw signals, exact motion boundaries, and trapezoidal integration.
 See docs/valve_flow_energy_metrics.md for definitions and interpretation.
 """
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -26,13 +25,7 @@ REQUIRED_COLUMNS = ["Time", "VolPump_p", *FLOW_SIGNALS.values()]
 
 
 def prepare_supply_signals(dataset: pd.DataFrame) -> pd.DataFrame:
-    """Return gauge supply pressure (bar) and supply flows (L/min).
 
-    Positive supply flow is minus the exported valve P-port flow. Total is
-    the sum of both valve flows. Tank pressure is 1 bar, as in the balances.
-    Validate finite signals and strictly increasing time; do not filter,
-    clip, or modify the source DataFrame.
-    """
     missing = sorted(set(REQUIRED_COLUMNS) - set(dataset.columns))
     if missing:
         raise ValueError(f"Missing columns: {', '.join(missing)}")
@@ -52,13 +45,6 @@ def prepare_supply_signals(dataset: pd.DataFrame) -> pd.DataFrame:
 def align_motion_signals(
     case: pd.DataFrame, reference: pd.DataFrame, start: float, end: float
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Interpolate prepared signals on both grids' union, without extrapolation."""
-    if not np.isfinite([start, end]).all() or end <= start:
-        raise ValueError("Motion bounds must be finite and increasing")
-    if start < max(case.Time.iloc[0], reference.Time.iloc[0]):
-        raise ValueError("Motion starts before available data")
-    if end > min(case.Time.iloc[-1], reference.Time.iloc[-1]):
-        raise ValueError("Motion ends after available data")
     time = np.unique(np.concatenate([
         [start, end],
         case.loc[(case.Time > start) & (case.Time < end), "Time"].to_numpy(),
@@ -71,7 +57,6 @@ def align_motion_signals(
 
 
 def relative_percent(numerator: float, denominator: float) -> float:
-    """Return a percentage; undefined zero-denominator ratios are NaN."""
     return float(100 * numerator / denominator) if denominator != 0 else np.nan
 
 
@@ -82,14 +67,6 @@ def calculate_flow_energy_metrics(
     reference_pressure: np.ndarray,
     reference_flow: np.ndarray,
 ) -> dict[str, float]:
-    """Return volume, flow deviation, and symmetric energy decomposition.
-
-    Arrays share increasing times (seconds); p is in bar above tank, q is
-    positive toward the valves in L/min. Energies are signed kJ. Flow and
-    pressure contributions split the interaction term equally and sum to
-    E_case - E_reference. Contribution percentages are percentage points
-    relative to reference energy, not percentages of the possibly tiny delta.
-    """
     duration = float(time[-1] - time[0])
     volume = float(np.trapezoid(flow, x=time) / 60)
     reference_volume = float(np.trapezoid(reference_flow, x=time) / 60)
@@ -167,15 +144,16 @@ def summarize_prepared_case(
     return pd.DataFrame(rows)
 
 
-def build_flow_energy_summary(
-    source_dir: Path = COMMITABLE_DATA_DIR,
-    reference_file: Path = REFERENCE_FILE,
-) -> pd.DataFrame:
-    """Compare each source TXT to validatio.txt; preserve unscaled R codes."""
-    files = sorted(Path(source_dir).glob("*.txt"))
+def main():
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
+    files = sorted(COMMITABLE_DATA_DIR.glob("*.txt"))
     if not files:
-        raise FileNotFoundError(f"No simulation TXT files in {source_dir}")
-    reference = prepare_supply_signals(load_result(reference_file))
+        raise FileNotFoundError(f"No simulation TXT files in {COMMITABLE_DATA_DIR}")
+    reference_dataset = load_result(REFERENCE_FILE)
+
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
+    reference = prepare_supply_signals(reference_dataset)
+    del reference_dataset
     rows = []
     for path in tqdm(files, desc="Valve flow/pressure energy effects", unit="case"):
         match = CASE_PATTERN.fullmatch(path.stem)
@@ -186,22 +164,20 @@ def build_flow_energy_summary(
             "rfp": int(match["rfp"]), "payload_kg": int(match["payload"]),
         }
         try:
-            summary = summarize_prepared_case(
-                prepare_supply_signals(load_result(path)), reference
-            )
+            case = prepare_supply_signals(load_result(path))
+            case_summary = summarize_prepared_case(case, reference)
         except (ValueError, KeyError) as error:
             raise ValueError(f"{path.name}: {error}") from error
         rows.extend(
-            {**parameters, **row} for row in summary.to_dict(orient="records")
+            {**parameters, **row} for row in case_summary.to_dict(orient="records")
         )
-    return pd.DataFrame(rows).sort_values(
+
+    summary = pd.DataFrame(rows).sort_values(
         ["lightweighting_percent", "rfp", "payload_kg", "motion", "valve"],
         ignore_index=True,
     )
 
-
-def main():
-    summary = build_flow_energy_summary()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(f"Saved {len(summary)} valve/motion comparisons to {OUTPUT_FILE}")

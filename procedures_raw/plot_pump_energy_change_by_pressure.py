@@ -10,10 +10,11 @@ from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumpti
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
 from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, REFPRESS_DIR
-RAWDATA_DIR = DATA_DIR
 
 if __name__ == "__main__":
-
+    folder = Path(REFPRESS_DIR)
+    if not (folder.is_dir() and any(f.is_file() for f in folder.iterdir())):
+        raise FileNotFoundError("This procedure requires specific dataset with reference pressure analysis. Please, contact the developer.")
     X_LABEL = r"$\Delta p_{\mathrm{LS}}$, bar"
     Y_LABEL = r"$\delta W_{pump}$, %"
     #TITLE = r"$P = Q_{\mathrm{pump}}(t)\cdot(p_{\mathrm{pump}}(t)-p_{\mathrm{tank}})$"

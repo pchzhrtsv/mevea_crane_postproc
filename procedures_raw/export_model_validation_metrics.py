@@ -103,15 +103,28 @@ def calculate_signal_metrics(
     }
 
 
-def build_validation_metrics() -> pd.DataFrame:
+def main():
     """Build the requested five-column table for two angles and four pressures.
 
     Angle references are the target_thetas curves labelled Experiment in
     plot_model_vs_experiment.py. Their original last sample bounds evaluation,
     excluding the constant tail introduced by realign_thetas up to 30 seconds.
     """
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
     simulation = load_result(VALIDATION_DIR / "validatio.txt")
     lift_reference, tilt_reference = load_ref_thetas(ANGLE_DIR)
+    pressure_signals = (
+        ("Lift chamber A pressure", "Lift_A_p", "press1.txt"),
+        ("Lift chamber B pressure", "Lift_B_p", "press2.txt"),
+        ("Tilt chamber A pressure", "Tilt_A_p", "press3.txt"),
+        ("Tilt chamber B pressure", "Tilt_B_p", "press4.txt"),
+    )
+    pressure_references = {
+        signal: load_result(VALIDATION_DIR / filename, sep=" ")
+        for _, signal, filename in pressure_signals
+    }
+
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
     angle_reference = realign_thetas(lift_reference, tilt_reference)
 
     rows = []
@@ -126,24 +139,17 @@ def build_validation_metrics() -> pd.DataFrame:
         )
         rows.append({"Signal": label, "Unit": "rad", **metrics})
 
-    for label, signal, filename in (
-        ("Lift chamber A pressure", "Lift_A_p", "press1.txt"),
-        ("Lift chamber B pressure", "Lift_B_p", "press2.txt"),
-        ("Tilt chamber A pressure", "Tilt_A_p", "press3.txt"),
-        ("Tilt chamber B pressure", "Tilt_B_p", "press4.txt"),
-    ):
-        reference = load_result(VALIDATION_DIR / filename, sep=" ")
+    for label, signal, _ in pressure_signals:
         metrics = calculate_signal_metrics(
-            simulation, reference, signal, experimental_signal=f"{signal}_exp",
+            simulation, pressure_references[signal], signal,
+            experimental_signal=f"{signal}_exp",
             start_time=SIMULATION_START_TIME,
         )
         rows.append({"Signal": label, "Unit": "bar", **metrics})
 
-    return pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
+    summary = pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
 
-
-def main():
-    summary = build_validation_metrics()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(summary.to_string(index=False))

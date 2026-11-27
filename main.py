@@ -19,6 +19,5 @@ def main():
     cutted_datasets = start_from(datasets, 2.4)
     power_plots(cutted_datasets, cases=CASES)
 
-
 if __name__ == "__main__":
     main()

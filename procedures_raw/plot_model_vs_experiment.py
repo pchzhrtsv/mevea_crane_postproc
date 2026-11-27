@@ -10,11 +10,8 @@ import tqdm
 from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumption_on_ref_pressure, pos_rms_on_ref_pressure, \
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
-from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT
-RAWDATA_DIR = DATA_DIR
-VALID_DIR = (PROJECT_ROOT / "exp_pressures" )
-REF_U_DIR = (PROJECT_ROOT / "target_u")
-REFTHETA_DIR = (PROJECT_ROOT / "target_thetas")
+from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REFTHETA_DIR, REF_U_DIR, VALID_DIR
+
 
 if __name__ == "__main__":
 

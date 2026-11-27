@@ -7,10 +7,7 @@ import pandas as pd
 from matplotlib.patches import Patch
 from matplotlib.colors import to_rgb
 
-from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, PROJECT_ROOT
-RAWDATA_DIR = DATA_DIR
-#REF_U_DIR = PROJECT_ROOT / "target_u"
-REF_U_DIR = PROJECT_ROOT / "exp_pressures/validatio.txt"
+from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REF_U_DIR
 
 if __name__ == "__main__":
 
@@ -31,15 +28,11 @@ if __name__ == "__main__":
 
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
 
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
 
-    #lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
-    valid_df = pd.read_csv(REF_U_DIR,sep="\t")
-    # lift_u_ds = valid_df
-    # tilt_u_ds = valid_df
-    #
-    # u_ds = realign_u(lift_u_ds, tilt_u_ds)
-    u_ds = valid_df
+    lift_u_ds, tilt_u_ds = load_ref_u(REF_U_DIR)
+    u_ds = realign_u(lift_u_ds, tilt_u_ds)
+
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 
     for case_id in case_set:

@@ -6,7 +6,6 @@ The symmetric two-order allocation closes exactly even with nonlinear spike
 filtering. Also report direct paired angle differences and flow deviations.
 No trajectory-equivalence threshold or automatic confidence label is imposed.
 """
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -164,21 +163,25 @@ def summarize_energy_attribution(changes: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def build_energy_attribution_summary(
-    source_dir: Path = COMMITABLE_DATA_DIR,
-) -> pd.DataFrame:
+def main():
     """Build paired 0%/30% attribution for identical payload/R, per motion."""
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
+    pairs = find_scenario_pairs(COMMITABLE_DATA_DIR)
+
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
+    # Read and process one 0%/30% pair at a time.
     rows = []
     for (rfp, payload), pair in tqdm(
-        sorted(find_scenario_pairs(source_dir).items()),
+        sorted(pairs.items()),
         desc="Paired pressure/flow energy attribution", unit="pair",
     ):
         if set(pair) != {0, 30}:
             raise ValueError(f"Incomplete 0%/30% pair: R{rfp}, P{payload}")
         try:
-            changes = prepare_energy_attribution(
-                load_result(pair[0]), load_result(pair[30])
-            )
+            baseline = load_result(pair[0])
+            lightweighted = load_result(pair[30])
+            changes = prepare_energy_attribution(baseline, lightweighted)
+            del baseline, lightweighted
             summary = summarize_energy_attribution(changes)
         except (ValueError, KeyError) as error:
             raise ValueError(f"R{rfp}, P{payload}: {error}") from error
@@ -186,13 +189,12 @@ def build_energy_attribution_summary(
             {"rfp": rfp, "payload_kg": payload, **row}
             for row in summary.to_dict(orient="records")
         )
-    return pd.DataFrame(rows).sort_values(
+
+    summary = pd.DataFrame(rows).sort_values(
         ["rfp", "payload_kg", "motion"], ignore_index=True
     )
 
-
-def main():
-    summary = build_energy_attribution_summary()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(f"Saved {len(summary)} paired motion attributions to {OUTPUT_FILE}")

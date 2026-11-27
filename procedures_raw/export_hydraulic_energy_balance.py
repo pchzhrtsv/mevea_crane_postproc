@@ -5,7 +5,6 @@ Use the full recorded interval and hydraulic powers with spike filtering
 Pressures are in bar, flows in L/min, time in seconds, and energy in kJ.
 The filename's R value is exported unchanged as rfp.
 """
-from pathlib import Path
 import re
 
 import numpy as np
@@ -36,12 +35,7 @@ REQUIRED_COLUMNS = [
 
 
 def calculate_hydraulic_powers(dataset: pd.DataFrame) -> pd.DataFrame:
-    """Return filtered hydraulic powers in kW without changing dataset.
 
-    Require finite input values and at least two strictly increasing times.
-    Cylinder power includes both chambers. Storage is signed power from
-    flow imbalance in the pump line and all four cylinder lines.
-    """
     missing = sorted(set(REQUIRED_COLUMNS) - set(dataset.columns))
     if missing:
         raise ValueError(f"Missing input columns: {', '.join(missing)}")
@@ -104,7 +98,6 @@ def calculate_hydraulic_powers(dataset: pd.DataFrame) -> pd.DataFrame:
             continue
         clean_spikes(powers, column, key_clean=column, window=20)
 
-    # Sum storage after filtering each line, as in the reference procedure.
     powers["P_storage_sum"] = powers[storage_columns].sum(axis=1)
     powers["P_sum_total"] = (
         powers["P_hyd_Lift"] + powers["P_hyd_Tilt"]
@@ -128,16 +121,9 @@ def calculate_energy_balance(dataset: pd.DataFrame) -> dict[str, float]:
 
 
 def integrate_energy_balance(powers: pd.DataFrame) -> dict[str, float]:
-    """Integrate already filtered kW powers over their time interval in seconds.
 
-    Return signed energies in kJ and shares of the interval's pump energy.
-    The input is a complete power balance or an interpolated time slice of it;
-    no additional filtering is performed here.
-    """
     time = powers["Time"].to_numpy()
     pump_energy = float(np.trapezoid(powers["P_pump"], x=time))
-    if pump_energy == 0:
-        raise ValueError("Pump energy is zero; percentage shares are undefined")
 
     result = {"pump_energy_kj": pump_energy}
     for component, column in ENERGY_COMPONENTS.items():
@@ -147,16 +133,14 @@ def integrate_energy_balance(powers: pd.DataFrame) -> dict[str, float]:
     return result
 
 
-def build_energy_summary(source_dir: Path = COMMITABLE_DATA_DIR) -> pd.DataFrame:
-    """Read L<percent>_P<kg>_R<code>.txt files one at a time.
+def main():
 
-    Return one row per input file, sorted by lightweighting, rfp, and payload.
-    Filename parameters are preserved; rfp is not rescaled.
-    """
-    files = sorted(Path(source_dir).glob("*.txt"))
+    # |||||||||||||||||||||||||| READING |||||||||||||||||||||||||||
+    files = sorted(COMMITABLE_DATA_DIR.glob("*.txt"))
     if not files:
-        raise FileNotFoundError(f"No simulation TXT files found in {source_dir}")
+        raise FileNotFoundError(f"No simulation TXT files found in {COMMITABLE_DATA_DIR}")
 
+    # ||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||
     rows = []
     for file_path in tqdm(files, desc="Hydraulic energy balance", unit="case"):
         match = CASE_PATTERN.fullmatch(file_path.stem)
@@ -165,25 +149,21 @@ def build_energy_summary(source_dir: Path = COMMITABLE_DATA_DIR) -> pd.DataFrame
         parameters = {
             "lightweighting_percent": int(match["lightweighting"]),
             "rfp": int(match["rfp"]),
-            "payload_kg": int(match["payload"]),
-        }
+            "payload_kg": int(match["payload"]),}
         try:
-            energy = calculate_energy_balance(load_result(file_path))
+            dataset = load_result(file_path)
+            energy = calculate_energy_balance(dataset)
+            del dataset
         except (ValueError, KeyError) as error:
             raise ValueError(f"{file_path.name}: {error}") from error
         rows.append({**parameters, **energy})
 
-    return pd.DataFrame(rows).sort_values(
-        ["lightweighting_percent", "rfp", "payload_kg"], ignore_index=True
-    )
+    summary = pd.DataFrame(rows).sort_values(["lightweighting_percent", "rfp", "payload_kg"], ignore_index=True)
 
-
-def main():
-    summary = build_energy_summary()
+    # |||||||||||||||||||||||||| WRITING |||||||||||||||||||||||||||
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(OUTPUT_FILE, index=False)
     print(f"Saved {len(summary)} cases to {OUTPUT_FILE}")
-
 
 if __name__ == "__main__":
     main()

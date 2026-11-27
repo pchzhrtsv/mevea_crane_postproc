@@ -12,7 +12,6 @@ from matplotlib.patches import Patch
 from matplotlib.colors import to_rgb
 
 from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR
-RAWDATA_DIR = DATA_DIR
 
 if __name__ == "__main__":
 
@@ -30,7 +29,7 @@ if __name__ == "__main__":
     p_set = [10, 400]
     r_set = [10]
     case_set = [(l, p, r) for l in l_set for p in p_set for r in r_set]
-    datasets.update(load_specific_results(RAWDATA_DIR, case_set))
+    datasets.update(load_specific_results(DATA_DIR, case_set))
     datasets = start_from(datasets, 2.5)
     """||||||||||||||||||||||||||||||||||||||||||||||||| PROCESSING |||||||||||||||||||||||||||||||||||||||||||||||||"""
 

@@ -11,11 +11,9 @@ from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumpti
 
 from utils.paths import CSV_DIR, DATA_DIR, FIGURES_DIR
 
-
 if __name__ == "__main__":
 
     param = "rfp"
-
     Y_LABEL = r"$\eta$, %"
     #TITLE = r"$P = Q_{\mathrm{pump}}(t)\cdot(p_{\mathrm{pump}}(t)-p_{\mathrm{tank}})$"
     plt.rcParams["font.family"] = "Times New Roman"
@@ -24,12 +22,14 @@ if __name__ == "__main__":
     color_lift = "#1E5AA8"
     color_tilt = "#1F7A4D"
     color_loss = "#D08A00"
+
     """|||||||||||||||||||||||||||||||||||||||||||||||||| READING ||||||||||||||||||||||||||||||||||||||||||||||||||"""
+
     all_params = ["rfp", "lgt", "pld"]
     edge_pairs = {
-        "rfp": [(a,b,0) for a in [0,30] for b in [10,400]],
+        "pld": [(a,0,b) for a in [0,30] for b in [10,400]],
         "lgt": [(0,a,b) for a in [10,400] for b in [10,40]],
-        "pld": [(a,0,b) for a in [0,30] for b in [10,40]],
+        "rfp": [(a,b,0) for a in [0,30] for b in [10,40]],
     }
     for param in all_params:
         for pair in edge_pairs[param]:

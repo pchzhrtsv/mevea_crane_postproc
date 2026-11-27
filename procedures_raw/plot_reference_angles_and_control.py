@@ -9,10 +9,8 @@ import matplotlib.pyplot as plt
 from utils.plot_blocks import pump_power_on_ref_pressure, light_impact_consumption_on_ref_pressure, pos_rms_on_ref_pressure, \
     consumption_on_lightweight, power_plots, booms_positions, pressure_plots
 
-from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT
-RAWDATA_DIR = DATA_DIR
-REFTHETA_DIR = (PROJECT_ROOT / "target_thetas")
-REF_U_DIR = (PROJECT_ROOT / "target_u")
+from utils.paths import DATA_DIR, FIGURES_DIR, PROJECT_ROOT, REF_U_DIR, REFTHETA_DIR
+
 if __name__ == "__main__":
 
     X_LABEL = "Time, s"
@@ -21,9 +19,7 @@ if __name__ == "__main__":
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["mathtext.fontset"] = "stix"
 
-
     """|||||||||||||||||||||||||||||||||||||||||||||||||| READING ||||||||||||||||||||||||||||||||||||||||||||||||||"""
-
 
     lift_theta_ds, tilt_theta_ds = load_ref_thetas(REFTHETA_DIR)
     thetas_ds = realign_thetas(lift_theta_ds, tilt_theta_ds)
